@@ -1,0 +1,35 @@
+from nltk import CFG
+
+def convert_to_chomsky_normal_form(grammar):
+    """
+    This function takes a context-free grammar and converts it to Chomsky Normal Form.
+    
+    Parameters:
+    grammar (str): The context-free grammar to be converted
+    
+    Returns:
+    nltk.CFG: The converted grammar in Chomsky Normal Form
+    """
+    try:
+        # Parse the grammar
+        cfg = CFG.fromstring(grammar)
+        
+        # Convert to Chomsky Normal Form
+        cnf = cfg.chomsky_normal_form()
+        
+        # Return the converted grammar
+        return cnf
+    except Exception as e:
+        # Log the error
+        print(f"Error: {e}")
+        return None
+
+# Example usage
+grammar = """
+S -> A S B | a
+A -> a A S | a | ε
+B -> S b S | A | b b
+"""
+cnf_grammar = convert_to_chomsky_normal_form(grammar)
+if cnf_grammar:
+    print(cnf_grammar)

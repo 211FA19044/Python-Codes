@@ -1,0 +1,15 @@
+def minimum_additional_hours(T, test_cases):
+    results = []
+    for X, Y in test_cases:
+        min_hours = (10 * (Y - X) + (100 - Y) - 1) // (100 - Y)
+        results.append(min_hours)
+    return results
+
+# Input
+T = int(input().strip())
+test_cases = [tuple(map(int, input().strip().split())) for _ in range(T)]
+
+# Calculate and output results
+results = minimum_additional_hours(T, test_cases)
+for result in results:
+    print(result)

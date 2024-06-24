@@ -1,0 +1,84 @@
+def eliminate_non_generating(grammar):
+    generating = set()
+
+    while True:
+        previous_generating = set(generating)
+
+        for production in grammar:
+            left, right = production.split("->")
+            right_symbols = right.strip().split()
+
+            if all(symbol in generating or symbol.islower() for symbol in right_symbols):
+                generating.add(left.strip())
+
+        if previous_generating == generating:
+            break
+
+    return generating
+
+
+def eliminate_non_reachable(grammar, start_symbol):
+    reachable = {start_symbol}
+
+    while True:
+        previous_reachable = set(reachable)
+
+        for production in grammar:
+            left, right = production.split("->")
+            right_symbols = right.strip().split()
+
+            if left in reachable:
+                reachable.update(symbol for symbol in right_symbols if symbol.islower() or symbol in grammar)
+
+        if previous_reachable == reachable:
+            break
+
+    return reachable
+
+
+def eliminate_epsilon(grammar):
+    epsilon_productions = {left.strip() for production in grammar if "-> ε" in production}
+
+    for production in grammar:
+        left, right = production.split("->")
+        right_symbols = right.strip().split()
+
+        for subset in powerset(right_symbols):
+            if set(subset) & epsilon_productions == set(subset):
+                new_production = f"{left.strip()} -> {' '.join(symbol for symbol in right_symbols if symbol not in subset)}"
+                if new_production != production:
+                    grammar.append(new_production)
+
+    grammar = [production for production in grammar if "-> ε" not in production]
+
+    return grammar
+
+
+def powerset(iterable):
+    s = list(iterable)
+    return [set(combinations(s, r)) for r in range(len(s) + 1)]
+
+
+def simplify_grammar(grammar, start_symbol):
+    generating = eliminate_non_generating(grammar)
+    reachable = eliminate_non_reachable(grammar, start_symbol)
+    simplified_grammar = [production for production in grammar if production.startswith(tuple(reachable))]
+
+    simplified_grammar = eliminate_epsilon(simplified_grammar)
+
+    return simplified_grammar
+
+
+# Example usage with the provided grammar
+start_symbol = 'S'
+grammar = [
+    "S -> 0XYZ",
+    "X -> 0Y | 0",
+    "Y -> 1X | 1",
+    "Z -> 0 | ε"
+]
+
+simplified_grammar = simplify_grammar(grammar, start_symbol)
+
+for production in simplified_grammar:
+    print(production)
